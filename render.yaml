@@ -1,0 +1,16 @@
+# Blueprint de Render: crea el servicio web del backend a partir del Dockerfile.
+# La cadena de conexion de MongoDB Atlas se carga a mano en el panel (MONGODB_URI).
+services:
+  - type: web
+    name: asgard-diseno
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JAVA_OPTS
+        value: "-XX:MaxRAMPercentage=75 -XX:+UseSerialGC"

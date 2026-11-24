@@ -1,0 +1,8 @@
+target/
+.git/
+.idea/
+.vscode/
+postman/
+mongo/
+wiki/
+*.md
