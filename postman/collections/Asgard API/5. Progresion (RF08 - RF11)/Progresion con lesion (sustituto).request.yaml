@@ -1,0 +1,12 @@
+$kind: http-request
+description: Con la lesion, el motor recomienda un sustituto para la sentadilla.
+url: "{{baseUrl}}/api/socios/{{socioId}}/progresion"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('Sugiere sustituir', () => pm.expect(pm.response.json().ejercicios[0].decision === 'SUSTITUIR').to.be.true);
+      pm.test('Propone la zancada, que no carga cuadriceps', () => pm.expect(pm.response.json().ejercicios[0].sustitutoId === pm.collectionVariables.get('zancadaId')).to.be.true);
+    language: text/javascript
+order: 5000

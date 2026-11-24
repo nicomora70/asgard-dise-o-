@@ -1,0 +1,9 @@
+$kind: http-request
+description: Todas las rutinas del socio, de la mas reciente a la mas antigua.
+url: "{{baseUrl}}/api/socios/{{socioId}}/rutinas"
+method: GET
+scripts:
+  - type: afterResponse
+    code: pm.test('Responde 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 5000

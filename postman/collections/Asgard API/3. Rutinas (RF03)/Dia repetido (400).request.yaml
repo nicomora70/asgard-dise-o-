@@ -1,0 +1,50 @@
+$kind: http-request
+description: Una rutina no puede tener el mismo dia dos veces. Responde 400.
+url: "{{baseUrl}}/api/socios/{{socioId}}/rutinas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Repetida",
+      "semanas": 4,
+      "dias": [
+        {
+          "dia": "MONDAY",
+          "ejercicios": [
+            {
+              "ejercicioId": "{{sentadillaId}}",
+              "series": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "rpeObjetivo": 8,
+              "cargaInicial": 60,
+              "descansoSegundos": 120
+            }
+          ]
+        },
+        {
+          "dia": "MONDAY",
+          "ejercicios": [
+            {
+              "ejercicioId": "{{sentadillaId}}",
+              "series": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "rpeObjetivo": 8,
+              "cargaInicial": 60,
+              "descansoSegundos": 120
+            }
+          ]
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Valida dias repetidos', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 3000

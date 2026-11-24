@@ -1,0 +1,21 @@
+$kind: http-request
+description: Un `ejercicioId` desconocido responde 404.
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "no-existe",
+      "peso": 50,
+      "repeticiones": 10
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 404', () => pm.response.to.have.status(404));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 10000

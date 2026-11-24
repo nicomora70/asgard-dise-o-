@@ -1,0 +1,23 @@
+$kind: http-request
+description: Crea el ejercicio base de cuadriceps. Guarda `sentadillaId`.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Sentadilla {{sufijo}}",
+      "grupoMuscular": "CUADRICEPS",
+      "tipo": "COMPUESTO",
+      "equipamiento": "BARRA",
+      "sustitutos": []
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Ejercicio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('sentadillaId', pm.response.json().id);
+    language: text/javascript
+order: 1000

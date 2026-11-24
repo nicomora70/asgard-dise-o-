@@ -1,0 +1,20 @@
+$kind: http-request
+description: Faltan campos obligatorios. Responde 400 y `detalles` lista cada campo invalido.
+url: "{{baseUrl}}/api/socios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "",
+      "nivel": "EXPERTO"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Valida el cuerpo', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 9000

@@ -1,0 +1,11 @@
+$kind: http-request
+description: Catalogo completo, sin filtro de grupo muscular.
+url: "{{baseUrl}}/api/ejercicios"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('Incluye los ejercicios creados', () => { const ids = pm.response.json().map(e => e.id); pm.expect(ids).to.include(pm.collectionVariables.get('sentadillaId')); pm.expect(ids).to.include(pm.collectionVariables.get('pressId')); });
+    language: text/javascript
+order: 12000

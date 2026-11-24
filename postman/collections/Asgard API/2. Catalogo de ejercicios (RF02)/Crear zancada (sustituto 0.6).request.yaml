@@ -1,0 +1,28 @@
+$kind: http-request
+description: Crea la zancada como sustituto de la sentadilla con similitud 0.6. Guarda `zancadaId`.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Zancada {{sufijo}}",
+      "grupoMuscular": "GLUTEOS",
+      "tipo": "COMPUESTO",
+      "equipamiento": "MANCUERNA",
+      "sustitutos": [
+        {
+          "ejercicioId": "{{sentadillaId}}",
+          "similitud": 0.6
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Ejercicio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('zancadaId', pm.response.json().id);
+    language: text/javascript
+order: 3000

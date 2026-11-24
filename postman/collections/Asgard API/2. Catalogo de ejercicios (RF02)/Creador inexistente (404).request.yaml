@@ -1,0 +1,24 @@
+$kind: http-request
+description: "`creadoPor` debe ser el id de un entrenador existente. Si no existe, responde 404."
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Peso muerto {{sufijo}}",
+      "grupoMuscular": "ISQUIOTIBIALES",
+      "tipo": "COMPUESTO",
+      "equipamiento": "BARRA",
+      "creadoPor": "no-existe"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Valida el creador', () => pm.response.to.have.status(404));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: No existe el entrenador', () => pm.expect(pm.response.json().mensaje).to.include('No existe el entrenador'));
+    language: text/javascript
+order: 8000

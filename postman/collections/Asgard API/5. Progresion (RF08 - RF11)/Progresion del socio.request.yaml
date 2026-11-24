@@ -1,0 +1,13 @@
+$kind: http-request
+description: "Estado de cada ejercicio: semaforo, decision (SUBIR, MANTENER...) y carga sugerida."
+url: "{{baseUrl}}/api/socios/{{socioId}}/progresion"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('Sentadilla: SUBIR', () => pm.expect(pm.response.json().ejercicios[0].decision === 'SUBIR').to.be.true);
+      pm.test('Sube 5 kg (tren inferior)', () => pm.expect(pm.response.json().ejercicios[0].cargaSugerida === 65).to.be.true);
+      pm.test('Menos de 200 ms (EC-01)', () => pm.expect(pm.response.json().tiempoCalculoMs < 200).to.be.true);
+    language: text/javascript
+order: 1000

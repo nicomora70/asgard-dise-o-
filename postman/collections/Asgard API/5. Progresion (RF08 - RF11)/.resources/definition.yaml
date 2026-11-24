@@ -1,0 +1,3 @@
+$kind: collection
+description: "RF08 a RF11: motor de progresion (semaforo y decision de carga), prioridades con Max-Heap, y sustitutos ante una lesion."
+order: 6000

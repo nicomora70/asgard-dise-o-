@@ -1,0 +1,12 @@
+$kind: http-request
+description: Una sesion omitida ya esta cerrada y no se puede completar. Responde 409.
+url: "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/{{sesion2Id}}/completar"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No se reabre', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: omitida', () => pm.expect(pm.response.json().mensaje).to.include('omitida'));
+    language: text/javascript
+order: 19000

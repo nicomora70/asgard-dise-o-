@@ -1,0 +1,11 @@
+$kind: http-request
+description: Desapila la ultima serie y la marca `deshecha` sin borrarla.
+url: "{{baseUrl}}/api/socios/{{socioId}}/series/deshacer"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('Deshace la serie de 80 kg sin borrarla', () => pm.expect(pm.response.json().serie.deshecha && pm.response.json().serie.peso === 80).to.be.true);
+    language: text/javascript
+order: 8000

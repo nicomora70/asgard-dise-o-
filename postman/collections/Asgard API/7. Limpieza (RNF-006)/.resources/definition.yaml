@@ -1,0 +1,3 @@
+$kind: collection
+description: "RNF-006: borrado en cascada de los datos de prueba."
+order: 8000

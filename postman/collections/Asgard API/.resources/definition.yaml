@@ -1,0 +1,32 @@
+$kind: collection
+description: |-
+  Pruebas de punta a punta de la API de **Asgard**, el motor de progresion de cargas para el gimnasio.
+
+  ## Como usarla
+  1. Elige un entorno: **Asgard Local** (`http://localhost:8080`) o **Asgard Produccion** (`https://asgard-diseno.onrender.com`).
+  2. Ejecuta toda la coleccion con **Run collection**, o carpeta por carpeta **en orden** (0 a 7). Cada peticion guarda los ids que necesitan las siguientes.
+  3. Render (plan gratis) se duerme tras 15 min sin uso. La primera peticion puede tardar unos 50 s, asi que conviene correr primero *Salud del servicio*.
+
+  `sufijo` toma el valor de `Date.now()` en cada corrida, asi que documentos y nombres nunca se repiten. La carpeta 7 borra los socios creados.
+
+  ## Errores
+  Todos los errores responden `{timestamp, estado, error, mensaje, ruta, detalles[]}`:
+  - **400**: validacion, formato o reglas de entrada.
+  - **404**: el recurso o la ruta no existe.
+  - **409**: se viola una regla de negocio (duplicados, cupo, sesion cerrada, pila vacia...).
+
+  ## Variables de coleccion
+  `sufijo`, `diaHoy` (dia de hoy en America/Bogota), `entrenadorId`, `entrenadorLlenoId`, `socioId`, `socio2Id`, `sentadillaId`, `prensaId`, `zancadaId`, `pressId`, `sesionId`, `sesion2Id`.
+variables:
+  sufijo: ""
+  diaHoy: ""
+  entrenadorId: ""
+  socioId: ""
+  sentadillaId: ""
+  prensaId: ""
+  zancadaId: ""
+  pressId: ""
+  sesionId: ""
+  entrenadorLlenoId: ""
+  socio2Id: ""
+  sesion2Id: ""

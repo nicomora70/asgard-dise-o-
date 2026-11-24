@@ -1,0 +1,46 @@
+$kind: http-request
+description: Asigna una rutina con el dia de hoy (`diaHoy`). La rutina anterior queda inactiva.
+url: "{{baseUrl}}/api/socios/{{socioId}}/rutinas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Fuerza base",
+      "semanas": 8,
+      "dias": [
+        {
+          "dia": "{{diaHoy}}",
+          "nombre": "Pierna y torso",
+          "ejercicios": [
+            {
+              "ejercicioId": "{{sentadillaId}}",
+              "series": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "rpeObjetivo": 8,
+              "cargaInicial": 60,
+              "descansoSegundos": 150
+            },
+            {
+              "ejercicioId": "{{pressId}}",
+              "series": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "rpeObjetivo": 8,
+              "cargaInicial": 40,
+              "descansoSegundos": 120
+            }
+          ]
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Rutina asignada', () => pm.response.to.have.status(201));
+      pm.test('Queda activa', () => pm.expect(pm.response.json().activa).to.be.true);
+    language: text/javascript
+order: 1000

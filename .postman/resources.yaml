@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 1308651f-b49d-42a8-849e-5758bb30d548
+
+cloudResources:
+  collections:
+    ../postman/collections/Asgard API: 565ef2a9-417a-42c5-8c94-ccea0d80328b
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

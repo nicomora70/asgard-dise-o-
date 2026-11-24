@@ -1,0 +1,23 @@
+$kind: http-request
+description: El nombre del ejercicio es unico, sin distinguir mayusculas. Responde 409.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Sentadilla {{sufijo}}",
+      "grupoMuscular": "CUADRICEPS",
+      "tipo": "COMPUESTO",
+      "equipamiento": "BARRA",
+      "sustitutos": []
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No crea duplicados', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 5000

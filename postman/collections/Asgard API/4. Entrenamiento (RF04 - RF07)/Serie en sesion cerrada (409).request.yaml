@@ -1,0 +1,23 @@
+$kind: http-request
+description: La sesion ya esta COMPLETADA y no acepta mas series. Responde 409.
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "{{sentadillaId}}",
+      "peso": 60,
+      "repeticiones": 10,
+      "sesionId": "{{sesionId}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No agrega a sesiones cerradas', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: cerrada', () => pm.expect(pm.response.json().mensaje).to.include('cerrada'));
+    language: text/javascript
+order: 14000

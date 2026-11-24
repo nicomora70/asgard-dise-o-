@@ -1,0 +1,28 @@
+$kind: http-request
+description: Crea la prensa como sustituto de la sentadilla con similitud 0.8. Guarda `prensaId`.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Prensa {{sufijo}}",
+      "grupoMuscular": "CUADRICEPS",
+      "tipo": "COMPUESTO",
+      "equipamiento": "MAQUINA",
+      "sustitutos": [
+        {
+          "ejercicioId": "{{sentadillaId}}",
+          "similitud": 0.8
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Ejercicio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('prensaId', pm.response.json().id);
+    language: text/javascript
+order: 2000

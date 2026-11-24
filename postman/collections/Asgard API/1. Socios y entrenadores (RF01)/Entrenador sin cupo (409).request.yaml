@@ -1,0 +1,12 @@
+$kind: http-request
+description: El entrenador ya tiene 1 de 1 socios. Asignarle otro responde 409 y el socio conserva su entrenador.
+url: "{{baseUrl}}/api/socios/{{socioId}}/entrenador/{{entrenadorLlenoId}}"
+method: PUT
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Respeta el cupo', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: cupo completo', () => pm.expect(pm.response.json().mensaje).to.include('cupo completo'));
+    language: text/javascript
+order: 15000

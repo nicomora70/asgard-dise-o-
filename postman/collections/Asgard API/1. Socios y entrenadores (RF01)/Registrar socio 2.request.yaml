@@ -1,0 +1,22 @@
+$kind: http-request
+description: Segundo socio, sin entrenador. Sirve para las pruebas de cupo, sesion omitida y deshacer vacio. Guarda `socio2Id`.
+url: "{{baseUrl}}/api/socios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Andres Pardo",
+      "documentoIdentidad": "S2-{{sufijo}}",
+      "nivel": "PRINCIPIANTE",
+      "objetivo": "FUERZA"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Socio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('socio2Id', pm.response.json().id);
+    language: text/javascript
+order: 12000

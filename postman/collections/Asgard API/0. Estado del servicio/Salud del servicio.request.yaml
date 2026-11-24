@@ -1,0 +1,11 @@
+$kind: http-request
+description: 'Health check de Spring Actuator. Debe responder `{status: "UP"}`. Tambien despierta Render.'
+url: "{{baseUrl}}/actuator/health"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('El servicio responde', () => pm.response.to.have.status(200));
+      pm.test('Estado UP', () => pm.expect(pm.response.json().status === 'UP').to.be.true);
+    language: text/javascript
+order: 1000

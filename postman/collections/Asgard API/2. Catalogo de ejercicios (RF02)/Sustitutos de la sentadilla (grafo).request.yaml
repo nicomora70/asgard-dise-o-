@@ -1,0 +1,11 @@
+$kind: http-request
+description: Vecinos de la sentadilla en el grafo de sustitutos, del mas similar al menos similar.
+url: "{{baseUrl}}/api/ejercicios/{{sentadillaId}}/sustitutos"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('El mas parecido va primero', () => pm.expect(pm.response.json()[0].ejercicioId === pm.collectionVariables.get('prensaId')).to.be.true);
+    language: text/javascript
+order: 10000

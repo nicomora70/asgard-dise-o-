@@ -1,0 +1,33 @@
+$kind: http-request
+description: El mismo ejercicio aparece dos veces en `sustitutos`, por eso responde 400.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Bulgara {{sufijo}}",
+      "grupoMuscular": "CUADRICEPS",
+      "tipo": "COMPUESTO",
+      "equipamiento": "MANCUERNA",
+      "sustitutos": [
+        {
+          "ejercicioId": "{{sentadillaId}}",
+          "similitud": 0.5
+        },
+        {
+          "ejercicioId": "{{sentadillaId}}",
+          "similitud": 0.7
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Valida sustitutos repetidos', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: repetido', () => pm.expect(pm.response.json().mensaje).to.include('repetido'));
+    language: text/javascript
+order: 7000

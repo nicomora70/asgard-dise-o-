@@ -1,0 +1,11 @@
+$kind: http-request
+description: Crea la sesion de hoy del socio 2 y guarda `sesion2Id`.
+url: "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/hoy"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.collectionVariables.set('sesion2Id', pm.response.json().sesion.id);
+    language: text/javascript
+order: 17000

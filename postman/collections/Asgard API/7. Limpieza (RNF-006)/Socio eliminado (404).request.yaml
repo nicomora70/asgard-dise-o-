@@ -1,0 +1,9 @@
+$kind: http-request
+description: El socio borrado ya no existe.
+url: "{{baseUrl}}/api/socios/{{socioId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: pm.test('Ya no existe', () => pm.response.to.have.status(404));
+    language: text/javascript
+order: 2000

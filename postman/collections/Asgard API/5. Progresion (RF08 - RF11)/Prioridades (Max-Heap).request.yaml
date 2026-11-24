@@ -1,0 +1,13 @@
+$kind: http-request
+description: Los k ejercicios con mayor puntaje de prioridad (`k=1`).
+url: "{{baseUrl}}/api/socios/{{socioId}}/prioridades?k=1"
+method: GET
+queryParams:
+  k: "1"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('El press, sin entrenar, va primero', () => pm.expect(pm.response.json().ejercicios[0].ejercicioId === pm.collectionVariables.get('pressId')).to.be.true);
+    language: text/javascript
+order: 2000

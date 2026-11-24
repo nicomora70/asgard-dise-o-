@@ -1,0 +1,3 @@
+$kind: collection
+description: "RF04 a RF07: sesion del dia, cola FIFO de pendientes, registro de series con advertencia de sobrecarga, pila para deshacer y cierre de sesiones."
+order: 5000

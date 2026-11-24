@@ -1,0 +1,19 @@
+$kind: http-request
+description: Reemplaza las lesiones del socio con `[CUADRICEPS]`.
+url: "{{baseUrl}}/api/socios/{{socioId}}/lesiones"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "lesiones": [
+        "CUADRICEPS"
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('Lesion registrada', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 4000

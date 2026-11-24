@@ -1,0 +1,23 @@
+$kind: http-request
+description: "Registra la serie con sobrecarga: responde 201 e incluye `advertencia`."
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "{{sentadillaId}}",
+      "peso": 80,
+      "repeticiones": 5,
+      "rpe": 10,
+      "registradoPor": "ENTRENADOR"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Se registra igual', () => pm.response.to.have.status(201));
+      pm.test('Trae advertencia', () => pm.expect(pm.response.json().advertencia.length > 0).to.be.true);
+    language: text/javascript
+order: 7000

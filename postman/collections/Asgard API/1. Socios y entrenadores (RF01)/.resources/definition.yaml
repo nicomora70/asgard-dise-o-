@@ -1,0 +1,3 @@
+$kind: collection
+description: "RF01: registro y consulta de entrenadores y socios, cupo maximo por entrenador, duplicados y validaciones."
+order: 2000

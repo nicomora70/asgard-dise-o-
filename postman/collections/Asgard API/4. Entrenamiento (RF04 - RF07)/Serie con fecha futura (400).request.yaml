@@ -1,0 +1,23 @@
+$kind: http-request
+description: "`fechaHora` no puede estar en el futuro. Responde 400."
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "{{sentadillaId}}",
+      "peso": 60,
+      "repeticiones": 10,
+      "fechaHora": "2099-01-01T10:00:00Z"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Rechaza el futuro', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: futuro', () => pm.expect(pm.response.json().mensaje).to.include('futuro'));
+    language: text/javascript
+order: 11000

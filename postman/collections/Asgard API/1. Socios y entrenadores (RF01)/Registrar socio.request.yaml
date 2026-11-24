@@ -1,0 +1,32 @@
+$kind: http-request
+description: Crea un socio con datos fisicos, asignado al entrenador. La API calcula edad e IMC. Guarda `socioId`.
+url: "{{baseUrl}}/api/socios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Laura Gomez",
+      "documentoIdentidad": "S-{{sufijo}}",
+      "correo": "laura@example.com",
+      "nivel": "INTERMEDIO",
+      "objetivo": "HIPERTROFIA",
+      "datosFisicos": {
+        "pesoCorporal": 62,
+        "estatura": 165,
+        "fechaNacimiento": "1998-04-10",
+        "sexo": "FEMENINO"
+      },
+      "lesiones": [],
+      "entrenadorId": "{{entrenadorId}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Socio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('socioId', pm.response.json().id);
+      pm.test('Calcula el IMC', () => pm.expect(pm.response.json().datosFisicos.imc > 0).to.be.true);
+    language: text/javascript
+order: 7000

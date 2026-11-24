@@ -1,0 +1,23 @@
+$kind: http-request
+description: Entrenador con `maximoSocios = 1`. Se usa para probar que el cupo se respeta. Guarda `entrenadorLlenoId`.
+url: "{{baseUrl}}/api/entrenadores"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Paula Vega",
+      "documentoIdentidad": "E1-{{sufijo}}",
+      "turno": "MANANA",
+      "maximoSocios": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Entrenador creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('entrenadorLlenoId', pm.response.json().id);
+      pm.test('Tiene cupo', () => pm.expect(pm.response.json().tieneCupo).to.be.true);
+    language: text/javascript
+order: 4000

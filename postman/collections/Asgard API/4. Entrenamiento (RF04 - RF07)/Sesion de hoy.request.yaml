@@ -1,0 +1,12 @@
+$kind: http-request
+description: Sesion del dia con la carga sugerida por ejercicio. Guarda `sesionId`.
+url: "{{baseUrl}}/api/socios/{{socioId}}/sesiones/hoy"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.collectionVariables.set('sesionId', pm.response.json().sesion.id);
+      pm.test('Sugiere la carga inicial', () => pm.expect(pm.response.json().ejercicios[0].cargaSugerida === 60).to.be.true);
+    language: text/javascript
+order: 1000

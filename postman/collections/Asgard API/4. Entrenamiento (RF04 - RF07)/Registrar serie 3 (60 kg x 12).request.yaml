@@ -1,0 +1,22 @@
+$kind: http-request
+description: Tercera serie de sentadilla.
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "{{sentadillaId}}",
+      "peso": 60,
+      "repeticiones": 12,
+      "rpe": 8
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Serie registrada', () => pm.response.to.have.status(201));
+      pm.test('Es la serie 3', () => pm.expect(pm.response.json().serie.numero === 3).to.be.true);
+    language: text/javascript
+order: 4000

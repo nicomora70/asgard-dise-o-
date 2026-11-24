@@ -1,0 +1,31 @@
+$kind: http-request
+description: Crea un entrenador. El pre-request genera `sufijo` y `diaHoy`. Guarda `entrenadorId`.
+url: "{{baseUrl}}/api/entrenadores"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Carlos Ruiz",
+      "documentoIdentidad": "E-{{sufijo}}",
+      "correo": "carlos@example.com",
+      "telefono": "3001234567",
+      "turno": "TARDE",
+      "maximoSocios": 20
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Entrenador creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('entrenadorId', pm.response.json().id);
+    language: text/javascript
+  - type: beforeRequest
+    code: |-
+      pm.collectionVariables.set('sufijo', Date.now().toString());
+      const dias = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+      const hoy = new Date(new Date().toLocaleString('en-US', {timeZone: 'America/Bogota'}));
+      pm.collectionVariables.set('diaHoy', dias[hoy.getDay()]);
+    language: text/javascript
+order: 1000

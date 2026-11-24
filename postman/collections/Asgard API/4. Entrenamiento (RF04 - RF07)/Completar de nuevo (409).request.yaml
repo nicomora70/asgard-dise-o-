@@ -1,0 +1,11 @@
+$kind: http-request
+description: Una sesion cerrada no se puede cerrar otra vez. Responde 409.
+url: "{{baseUrl}}/api/socios/{{socioId}}/sesiones/{{sesionId}}/completar"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No se cierra dos veces', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 13000

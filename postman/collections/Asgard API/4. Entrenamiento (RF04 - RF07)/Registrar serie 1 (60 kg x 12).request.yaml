@@ -1,0 +1,22 @@
+$kind: http-request
+description: Registra la serie 1 de sentadilla. Se apila para poder deshacerla.
+url: "{{baseUrl}}/api/socios/{{socioId}}/series"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ejercicioId": "{{sentadillaId}}",
+      "peso": 60,
+      "repeticiones": 12,
+      "rpe": 8
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Serie registrada', () => pm.response.to.have.status(201));
+      pm.test('Es la serie 1', () => pm.expect(pm.response.json().serie.numero === 1).to.be.true);
+    language: text/javascript
+order: 2000

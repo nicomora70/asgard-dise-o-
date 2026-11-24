@@ -1,0 +1,15 @@
+$kind: http-request
+description: "`peso` es obligatorio en `/validar`. Si falta, responde 400 y el mensaje nombra el parametro."
+url: "{{baseUrl}}/api/socios/{{socioId}}/series/validar?ejercicioId={{sentadillaId}}&repeticiones=5"
+method: GET
+queryParams:
+  ejercicioId: "{{sentadillaId}}"
+  repeticiones: "5"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Exige los parametros', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: peso', () => pm.expect(pm.response.json().mensaje).to.include('peso'));
+    language: text/javascript
+order: 6000

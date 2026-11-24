@@ -1,0 +1,23 @@
+$kind: http-request
+description: Ejercicio de pecho para la rutina. Guarda `pressId`.
+url: "{{baseUrl}}/api/ejercicios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Press de banca {{sufijo}}",
+      "grupoMuscular": "PECHO",
+      "tipo": "COMPUESTO",
+      "equipamiento": "BARRA",
+      "sustitutos": []
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Ejercicio creado', () => pm.response.to.have.status(201));
+      pm.collectionVariables.set('pressId', pm.response.json().id);
+    language: text/javascript
+order: 4000

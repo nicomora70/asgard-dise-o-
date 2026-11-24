@@ -1,0 +1,21 @@
+$kind: http-request
+description: Un cuerpo que no es JSON valido responde 400 con el cuerpo de error comun.
+url: "{{baseUrl}}/api/socios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Ana Ruiz",
+      "documentoIdentidad": 
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Rechaza el JSON', () => pm.response.to.have.status(400));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: formato esperado', () => pm.expect(pm.response.json().mensaje).to.include('formato esperado'));
+    language: text/javascript
+order: 11000

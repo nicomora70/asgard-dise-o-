@@ -1,0 +1,22 @@
+$kind: http-request
+description: Mismo documento que el socio anterior. Responde 409.
+url: "{{baseUrl}}/api/socios"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Laura Gomez",
+      "documentoIdentidad": "S-{{sufijo}}",
+      "nivel": "INTERMEDIO",
+      "objetivo": "HIPERTROFIA"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No crea duplicados', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 8000

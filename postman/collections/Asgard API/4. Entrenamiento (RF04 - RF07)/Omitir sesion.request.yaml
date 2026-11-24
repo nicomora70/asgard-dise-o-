@@ -1,0 +1,11 @@
+$kind: http-request
+description: El socio no hizo la sesion. Queda OMITIDA y sale de la cola de pendientes.
+url: "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/{{sesion2Id}}/omitir"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 200', () => pm.response.to.have.status(200));
+      pm.test('Queda omitida', () => pm.expect(pm.response.json().estado).to.eql('OMITIDA'));
+    language: text/javascript
+order: 18000

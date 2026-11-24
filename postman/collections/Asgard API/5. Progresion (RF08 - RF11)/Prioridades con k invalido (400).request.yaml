@@ -1,0 +1,11 @@
+$kind: http-request
+description: "`k` debe estar entre 1 y 50. Con 0 responde 400."
+url: "{{baseUrl}}/api/socios/{{socioId}}/prioridades?k=0"
+method: GET
+queryParams:
+  k: "0"
+scripts:
+  - type: afterResponse
+    code: pm.test('Valida k', () => pm.response.to.have.status(400));
+    language: text/javascript
+order: 3000

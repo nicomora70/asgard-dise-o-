@@ -1,0 +1,9 @@
+$kind: http-request
+description: Borra el socio junto con su rutina, sesiones y series. Responde 204.
+url: "{{baseUrl}}/api/socios/{{socioId}}"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: pm.test('Socio eliminado', () => pm.response.to.have.status(204));
+    language: text/javascript
+order: 1000

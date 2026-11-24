@@ -1,0 +1,23 @@
+$kind: http-request
+description: Reusa el documento del entrenador recien creado. El documento de identidad es unico, por eso responde 409.
+url: "{{baseUrl}}/api/entrenadores"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Carlos Ruiz",
+      "documentoIdentidad": "E-{{sufijo}}",
+      "turno": "TARDE",
+      "maximoSocios": 20
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('No crea duplicados', () => pm.response.to.have.status(409));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+      pm.test('Mensaje: Ya existe un entrenador', () => pm.expect(pm.response.json().mensaje).to.include('Ya existe un entrenador'));
+    language: text/javascript
+order: 3000

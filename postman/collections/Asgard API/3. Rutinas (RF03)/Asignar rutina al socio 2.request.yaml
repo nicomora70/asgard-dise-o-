@@ -1,0 +1,37 @@
+$kind: http-request
+description: Rutina con el dia de hoy para el socio 2. Sin `entrenadorId`, la rutina toma el entrenador del socio.
+url: "{{baseUrl}}/api/socios/{{socio2Id}}/rutinas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Inicio",
+      "semanas": 4,
+      "dias": [
+        {
+          "dia": "{{diaHoy}}",
+          "nombre": "Pierna",
+          "ejercicios": [
+            {
+              "ejercicioId": "{{sentadillaId}}",
+              "series": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "rpeObjetivo": 8,
+              "cargaInicial": 60,
+              "descansoSegundos": 120
+            }
+          ]
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Rutina asignada', () => pm.response.to.have.status(201));
+      pm.test('Hereda el entrenador del socio', () => pm.expect(pm.response.json().entrenadorId).to.eql(pm.collectionVariables.get('entrenadorLlenoId')));
+    language: text/javascript
+order: 7000

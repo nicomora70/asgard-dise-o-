@@ -1,0 +1,11 @@
+$kind: http-request
+description: Un id que no existe responde 404.
+url: "{{baseUrl}}/api/socios/no-existe"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Responde 404', () => pm.response.to.have.status(404));
+      pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 17000
