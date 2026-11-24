@@ -79,6 +79,8 @@ Muestra las clases del dominio, que son los documentos que se guardan en MongoDB
   | Sustituto, Prescripcion y Serie apuntan a Ejercicio | `0..*` — `1` |
 
 - **Visibilidad:** `#` protegido (atributos de `Persona`), `-` privado (atributos) y `+` público (métodos).
+- **Getters y setters:** cada clase muestra el `get` (o `is` para los `boolean`) y el `set` de sus atributos,
+  igual que en las clases Java del paquete `modelo`.
 - **Tipos enumerados:** `Nivel`, `Objetivo`, `GrupoMuscular`, `TipoEjercicio`, `Equipamiento`, `Turno`, `Sexo`,
   `EstadoSesion` y `RegistradoPor`. Están en el paquete `modelo.enums`.
 
