@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "ent_carlos",
+    "nombre": "Carlos Ruiz",
+    "documentoIdentidad": "80123456",
+    "correo": "carlos.ruiz@example.com",
+    "telefono": "3001112233",
+    "turno": "TARDE",
+    "maximoSocios": 25,
+    "fechaRegistro": {
+      "$date": "2026-11-01T12:00:00Z"
+    }
+  },
+  {
+    "_id": "ent_paula",
+    "nombre": "Paula Herrera",
+    "documentoIdentidad": "52987654",
+    "correo": "paula.herrera@example.com",
+    "telefono": "3104445566",
+    "turno": "MANANA",
+    "maximoSocios": 15,
+    "fechaRegistro": {
+      "$date": "2026-11-01T12:00:00Z"
+    }
+  }
+]

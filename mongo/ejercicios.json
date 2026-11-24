@@ -1,0 +1,615 @@
+[
+  {
+    "_id": "ej_sentadilla",
+    "nombre": "Sentadilla con barra",
+    "grupoMuscular": "CUADRICEPS",
+    "gruposSecundarios": [
+      "GLUTEOS",
+      "CORE"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_sentadilla_frontal",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_prensa",
+        "similitud": 0.8
+      },
+      {
+        "ejercicioId": "ej_hack",
+        "similitud": 0.8
+      },
+      {
+        "ejercicioId": "ej_zancada",
+        "similitud": 0.6
+      }
+    ]
+  },
+  {
+    "_id": "ej_sentadilla_frontal",
+    "nombre": "Sentadilla frontal",
+    "grupoMuscular": "CUADRICEPS",
+    "gruposSecundarios": [
+      "CORE"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_sentadilla",
+        "similitud": 0.9
+      }
+    ]
+  },
+  {
+    "_id": "ej_prensa",
+    "nombre": "Prensa de piernas",
+    "grupoMuscular": "CUADRICEPS",
+    "gruposSecundarios": [
+      "GLUTEOS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_sentadilla",
+        "similitud": 0.8
+      },
+      {
+        "ejercicioId": "ej_hack",
+        "similitud": 0.85
+      },
+      {
+        "ejercicioId": "ej_extension",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_hack",
+    "nombre": "Sentadilla hack",
+    "grupoMuscular": "CUADRICEPS",
+    "gruposSecundarios": [],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_sentadilla",
+        "similitud": 0.8
+      },
+      {
+        "ejercicioId": "ej_prensa",
+        "similitud": 0.85
+      }
+    ]
+  },
+  {
+    "_id": "ej_zancada",
+    "nombre": "Zancada con mancuernas",
+    "grupoMuscular": "GLUTEOS",
+    "gruposSecundarios": [
+      "CUADRICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_sentadilla",
+        "similitud": 0.6
+      },
+      {
+        "ejercicioId": "ej_bulgara",
+        "similitud": 0.9
+      }
+    ]
+  },
+  {
+    "_id": "ej_bulgara",
+    "nombre": "Sentadilla bulgara",
+    "grupoMuscular": "GLUTEOS",
+    "gruposSecundarios": [
+      "CUADRICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_zancada",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_hip_thrust",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_extension",
+    "nombre": "Extension de cuadriceps",
+    "grupoMuscular": "CUADRICEPS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_prensa",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_peso_muerto",
+    "nombre": "Peso muerto",
+    "grupoMuscular": "ISQUIOTIBIALES",
+    "gruposSecundarios": [
+      "GLUTEOS",
+      "ESPALDA"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_peso_muerto_rumano",
+        "similitud": 0.85
+      }
+    ]
+  },
+  {
+    "_id": "ej_peso_muerto_rumano",
+    "nombre": "Peso muerto rumano",
+    "grupoMuscular": "ISQUIOTIBIALES",
+    "gruposSecundarios": [
+      "GLUTEOS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_peso_muerto",
+        "similitud": 0.85
+      },
+      {
+        "ejercicioId": "ej_curl_femoral",
+        "similitud": 0.6
+      },
+      {
+        "ejercicioId": "ej_hip_thrust",
+        "similitud": 0.6
+      }
+    ]
+  },
+  {
+    "_id": "ej_curl_femoral",
+    "nombre": "Curl femoral",
+    "grupoMuscular": "ISQUIOTIBIALES",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_peso_muerto_rumano",
+        "similitud": 0.6
+      }
+    ]
+  },
+  {
+    "_id": "ej_hip_thrust",
+    "nombre": "Hip thrust",
+    "grupoMuscular": "GLUTEOS",
+    "gruposSecundarios": [
+      "ISQUIOTIBIALES"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_peso_muerto_rumano",
+        "similitud": 0.6
+      },
+      {
+        "ejercicioId": "ej_bulgara",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_pantorrilla",
+    "nombre": "Elevacion de talones de pie",
+    "grupoMuscular": "PANTORRILLAS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_pantorrilla_sentado",
+        "similitud": 0.85
+      }
+    ]
+  },
+  {
+    "_id": "ej_pantorrilla_sentado",
+    "nombre": "Elevacion de talones sentado",
+    "grupoMuscular": "PANTORRILLAS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MAQUINA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_pantorrilla",
+        "similitud": 0.85
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_banca",
+    "nombre": "Press de banca",
+    "grupoMuscular": "PECHO",
+    "gruposSecundarios": [
+      "TRICEPS",
+      "HOMBROS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_mancuernas",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_press_inclinado",
+        "similitud": 0.75
+      },
+      {
+        "ejercicioId": "ej_fondos",
+        "similitud": 0.6
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_mancuernas",
+    "nombre": "Press con mancuernas",
+    "grupoMuscular": "PECHO",
+    "gruposSecundarios": [
+      "TRICEPS",
+      "HOMBROS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_banca",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_aperturas",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_inclinado",
+    "nombre": "Press inclinado",
+    "grupoMuscular": "PECHO",
+    "gruposSecundarios": [
+      "HOMBROS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_banca",
+        "similitud": 0.75
+      }
+    ]
+  },
+  {
+    "_id": "ej_fondos",
+    "nombre": "Fondos en paralelas",
+    "grupoMuscular": "PECHO",
+    "gruposSecundarios": [
+      "TRICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "PESO_CORPORAL",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_banca",
+        "similitud": 0.6
+      }
+    ]
+  },
+  {
+    "_id": "ej_aperturas",
+    "nombre": "Aperturas en polea",
+    "grupoMuscular": "PECHO",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "POLEA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_mancuernas",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_dominadas",
+    "nombre": "Dominadas",
+    "grupoMuscular": "ESPALDA",
+    "gruposSecundarios": [
+      "BICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "PESO_CORPORAL",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_jalon",
+        "similitud": 0.9
+      }
+    ]
+  },
+  {
+    "_id": "ej_jalon",
+    "nombre": "Jalon al pecho",
+    "grupoMuscular": "ESPALDA",
+    "gruposSecundarios": [
+      "BICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "POLEA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_dominadas",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_remo_mancuerna",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_remo_barra",
+    "nombre": "Remo con barra",
+    "grupoMuscular": "ESPALDA",
+    "gruposSecundarios": [
+      "BICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_remo_mancuerna",
+        "similitud": 0.85
+      }
+    ]
+  },
+  {
+    "_id": "ej_remo_mancuerna",
+    "nombre": "Remo con mancuerna",
+    "grupoMuscular": "ESPALDA",
+    "gruposSecundarios": [
+      "BICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_remo_barra",
+        "similitud": 0.85
+      },
+      {
+        "ejercicioId": "ej_jalon",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_militar",
+    "nombre": "Press militar",
+    "grupoMuscular": "HOMBROS",
+    "gruposSecundarios": [
+      "TRICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_hombro_mancuernas",
+        "similitud": 0.9
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_hombro_mancuernas",
+    "nombre": "Press de hombro con mancuernas",
+    "grupoMuscular": "HOMBROS",
+    "gruposSecundarios": [
+      "TRICEPS"
+    ],
+    "tipo": "COMPUESTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_militar",
+        "similitud": 0.9
+      },
+      {
+        "ejercicioId": "ej_elevaciones_laterales",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_elevaciones_laterales",
+    "nombre": "Elevaciones laterales",
+    "grupoMuscular": "HOMBROS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_hombro_mancuernas",
+        "similitud": 0.5
+      }
+    ]
+  },
+  {
+    "_id": "ej_curl_barra",
+    "nombre": "Curl con barra",
+    "grupoMuscular": "BICEPS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_curl_martillo",
+        "similitud": 0.8
+      }
+    ]
+  },
+  {
+    "_id": "ej_curl_martillo",
+    "nombre": "Curl martillo",
+    "grupoMuscular": "BICEPS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "MANCUERNA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_curl_barra",
+        "similitud": 0.8
+      }
+    ]
+  },
+  {
+    "_id": "ej_extension_triceps",
+    "nombre": "Extension de triceps en polea",
+    "grupoMuscular": "TRICEPS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "POLEA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_press_frances",
+        "similitud": 0.8
+      }
+    ]
+  },
+  {
+    "_id": "ej_press_frances",
+    "nombre": "Press frances",
+    "grupoMuscular": "TRICEPS",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "BARRA",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": [
+      {
+        "ejercicioId": "ej_extension_triceps",
+        "similitud": 0.8
+      }
+    ]
+  },
+  {
+    "_id": "ej_plancha",
+    "nombre": "Plancha abdominal",
+    "grupoMuscular": "CORE",
+    "gruposSecundarios": [],
+    "tipo": "AISLAMIENTO",
+    "equipamiento": "PESO_CORPORAL",
+    "incrementoKg": 0.0,
+    "creadoPor": "ent_carlos",
+    "activo": true,
+    "sustitutos": []
+  }
+]

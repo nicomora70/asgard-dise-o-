@@ -1,0 +1,192 @@
+[
+  {
+    "_id": "rut_laura_1",
+    "socioId": "soc_laura",
+    "entrenadorId": "ent_carlos",
+    "nombre": "Torso / Pierna",
+    "fechaInicio": {
+      "$date": "2026-11-02T00:00:00Z"
+    },
+    "semanas": 8,
+    "activa": true,
+    "fechaCreacion": {
+      "$date": "2026-11-01T12:00:00Z"
+    },
+    "dias": [
+      {
+        "dia": "MONDAY",
+        "nombre": "Pierna A",
+        "prescripciones": [
+          {
+            "orden": 1,
+            "ejercicioId": "ej_sentadilla",
+            "series": 4,
+            "repsMin": 6,
+            "repsMax": 10,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 50,
+            "descansoSegundos": 180
+          },
+          {
+            "orden": 2,
+            "ejercicioId": "ej_peso_muerto_rumano",
+            "series": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 40,
+            "descansoSegundos": 120
+          },
+          {
+            "orden": 3,
+            "ejercicioId": "ej_extension",
+            "series": 3,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 20,
+            "descansoSegundos": 90
+          },
+          {
+            "orden": 4,
+            "ejercicioId": "ej_pantorrilla",
+            "series": 3,
+            "repsMin": 12,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 30,
+            "descansoSegundos": 60
+          }
+        ]
+      },
+      {
+        "dia": "TUESDAY",
+        "nombre": "Torso A",
+        "prescripciones": [
+          {
+            "orden": 1,
+            "ejercicioId": "ej_press_banca",
+            "series": 4,
+            "repsMin": 6,
+            "repsMax": 10,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 35,
+            "descansoSegundos": 150
+          },
+          {
+            "orden": 2,
+            "ejercicioId": "ej_remo_barra",
+            "series": 4,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 30,
+            "descansoSegundos": 120
+          },
+          {
+            "orden": 3,
+            "ejercicioId": "ej_press_hombro_mancuernas",
+            "series": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 8,
+            "descansoSegundos": 120
+          },
+          {
+            "orden": 4,
+            "ejercicioId": "ej_curl_barra",
+            "series": 3,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 15,
+            "descansoSegundos": 60
+          }
+        ]
+      },
+      {
+        "dia": "THURSDAY",
+        "nombre": "Pierna B",
+        "prescripciones": [
+          {
+            "orden": 1,
+            "ejercicioId": "ej_prensa",
+            "series": 4,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 90,
+            "descansoSegundos": 150
+          },
+          {
+            "orden": 2,
+            "ejercicioId": "ej_hip_thrust",
+            "series": 4,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 50,
+            "descansoSegundos": 120
+          },
+          {
+            "orden": 3,
+            "ejercicioId": "ej_curl_femoral",
+            "series": 3,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 25,
+            "descansoSegundos": 90
+          }
+        ]
+      },
+      {
+        "dia": "FRIDAY",
+        "nombre": "Torso B",
+        "prescripciones": [
+          {
+            "orden": 1,
+            "ejercicioId": "ej_dominadas",
+            "series": 4,
+            "repsMin": 5,
+            "repsMax": 10,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 0,
+            "descansoSegundos": 150
+          },
+          {
+            "orden": 2,
+            "ejercicioId": "ej_press_inclinado",
+            "series": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 30,
+            "descansoSegundos": 120
+          },
+          {
+            "orden": 3,
+            "ejercicioId": "ej_elevaciones_laterales",
+            "series": 3,
+            "repsMin": 12,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 5,
+            "descansoSegundos": 60
+          },
+          {
+            "orden": 4,
+            "ejercicioId": "ej_extension_triceps",
+            "series": 3,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rpeObjetivo": 8.0,
+            "cargaInicial": 15,
+            "descansoSegundos": 60
+          }
+        ]
+      }
+    ]
+  }
+]

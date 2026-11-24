@@ -1,0 +1,58 @@
+[
+  {
+    "_id": "soc_laura",
+    "nombre": "Laura Gomez",
+    "documentoIdentidad": "1001234567",
+    "correo": "laura.gomez@example.com",
+    "telefono": "3157778899",
+    "nivel": "INTERMEDIO",
+    "objetivo": "HIPERTROFIA",
+    "fechaIngreso": {
+      "$date": "2026-08-01T00:00:00Z"
+    },
+    "datosFisicos": {
+      "pesoCorporal": 62.0,
+      "estatura": 165.0,
+      "fechaNacimiento": {
+        "$date": "1998-04-10T00:00:00Z"
+      },
+      "sexo": "FEMENINO"
+    },
+    "lesiones": [],
+    "entrenadorId": "ent_carlos",
+    "pilaDeshacer": [],
+    "colaPendientes": [],
+    "fechaRegistro": {
+      "$date": "2026-11-01T12:00:00Z"
+    }
+  },
+  {
+    "_id": "soc_andres",
+    "nombre": "Andres Mejia",
+    "documentoIdentidad": "1019876543",
+    "correo": "andres.mejia@example.com",
+    "telefono": "3201234567",
+    "nivel": "PRINCIPIANTE",
+    "objetivo": "FUERZA",
+    "fechaIngreso": {
+      "$date": "2026-10-15T00:00:00Z"
+    },
+    "datosFisicos": {
+      "pesoCorporal": 78.0,
+      "estatura": 178.0,
+      "fechaNacimiento": {
+        "$date": "2001-09-22T00:00:00Z"
+      },
+      "sexo": "MASCULINO"
+    },
+    "lesiones": [
+      "HOMBROS"
+    ],
+    "entrenadorId": "ent_paula",
+    "pilaDeshacer": [],
+    "colaPendientes": [],
+    "fechaRegistro": {
+      "$date": "2026-11-01T12:00:00Z"
+    }
+  }
+]
