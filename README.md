@@ -12,6 +12,15 @@ El caso de estudio, los requisitos y los diagramas están en la
 [wiki del repositorio](https://github.com/nicomora70/asgard-dise-o-/wiki), y las historias de usuario en los
 [issues](https://github.com/nicomora70/asgard-dise-o-/issues).
 
+| | |
+|---|---|
+| **API desplegada** | https://asgard-diseno.onrender.com |
+| **Swagger UI** | https://asgard-diseno.onrender.com/swagger-ui.html |
+| **Estado del servicio** | https://asgard-diseno.onrender.com/actuator/health |
+
+> El servicio usa el plan gratuito de Render: tras 15 minutos sin uso se suspende y la primera peticion tarda unos
+> 50 segundos en responder.
+
 ## Alcance
 
 Este entregable corresponde **únicamente al backend** (API REST). No incluye interfaz gráfica: toda la interacción

@@ -15,6 +15,8 @@ a objetos, la arquitectura por capas y las estructuras de datos que pide el caso
 
 | | |
 |---|---|
+| **API desplegada** | https://asgard-diseno.onrender.com |
+| **Swagger UI** | https://asgard-diseno.onrender.com/swagger-ui.html |
 | **Código fuente** | [nicomora70/asgard-dise-o-](https://github.com/nicomora70/asgard-dise-o-) |
 | **Historias de usuario** | [Issues del repositorio](https://github.com/nicomora70/asgard-dise-o-/issues) |
 
