@@ -1,0 +1,1684 @@
+{
+  "info": {
+    "_postman_id": "b9babfd5-0c79-5b78-ad64-49dcf9c0932d",
+    "name": "Asgard API",
+    "description": "Pruebas de la API de Asgard: progresion de cargas en el gimnasio. Ejecutar las carpetas en orden o toda la coleccion con Run collection; los identificadores se guardan solos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Estado del servicio",
+      "item": [
+        {
+          "name": "Salud del servicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('El servicio responde', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado UP', () => pm.expect(pm.response.json().status === 'UP').to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inicio de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Socios y entrenadores (RF01)",
+      "item": [
+        {
+          "name": "Registrar entrenador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Ruiz\",\n  \"documentoIdentidad\": \"E-{{sufijo}}\",\n  \"correo\": \"carlos@example.com\",\n  \"telefono\": \"3001234567\",\n  \"turno\": \"TARDE\",\n  \"maximoSocios\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Entrenador creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('entrenadorId', pm.response.json().id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('sufijo', Date.now().toString());",
+                  "const dias = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];",
+                  "const hoy = new Date(new Date().toLocaleString('en-US', {timeZone: 'America/Bogota'}));",
+                  "pm.collectionVariables.set('diaHoy', dias[hoy.getDay()]);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Entrenador con cupo invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sin cupo\",\n  \"documentoIdentidad\": \"E0-{{sufijo}}\",\n  \"turno\": \"MANANA\",\n  \"maximoSocios\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el cupo', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar socio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Laura Gomez\",\n  \"documentoIdentidad\": \"S-{{sufijo}}\",\n  \"correo\": \"laura@example.com\",\n  \"nivel\": \"INTERMEDIO\",\n  \"objetivo\": \"HIPERTROFIA\",\n  \"datosFisicos\": {\n    \"pesoCorporal\": 62,\n    \"estatura\": 165,\n    \"fechaNacimiento\": \"1998-04-10\",\n    \"sexo\": \"FEMENINO\"\n  },\n  \"lesiones\": [],\n  \"entrenadorId\": \"{{entrenadorId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Socio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('socioId', pm.response.json().id);",
+                  "pm.test('Calcula el IMC', () => pm.expect(pm.response.json().datosFisicos.imc > 0).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socio duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Laura Gomez\",\n  \"documentoIdentidad\": \"S-{{sufijo}}\",\n  \"nivel\": \"INTERMEDIO\",\n  \"objetivo\": \"HIPERTROFIA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No crea duplicados', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socio sin campos obligatorios (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"nivel\": \"EXPERTO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el cuerpo', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar socio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Socio encontrado', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socio inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "no-existe"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socios del entrenador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores/{{entrenadorId}}/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores",
+                "{{entrenadorId}}",
+                "socios"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lista los socios', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene 1 socio', () => pm.expect(pm.response.json().length === 1).to.be.true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Catalogo de ejercicios (RF02)",
+      "item": [
+        {
+          "name": "Crear sentadilla",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sentadilla {{sufijo}}\",\n  \"grupoMuscular\": \"CUADRICEPS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"BARRA\",\n  \"sustitutos\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ejercicio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('sentadillaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear prensa (sustituto 0.8)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prensa {{sufijo}}\",\n  \"grupoMuscular\": \"CUADRICEPS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"MAQUINA\",\n  \"sustitutos\": [\n    {\n      \"ejercicioId\": \"{{sentadillaId}}\",\n      \"similitud\": 0.8\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ejercicio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('prensaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear zancada (sustituto 0.6)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Zancada {{sufijo}}\",\n  \"grupoMuscular\": \"GLUTEOS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"MANCUERNA\",\n  \"sustitutos\": [\n    {\n      \"ejercicioId\": \"{{sentadillaId}}\",\n      \"similitud\": 0.6\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ejercicio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('zancadaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear press de banca",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Press de banca {{sufijo}}\",\n  \"grupoMuscular\": \"PECHO\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"BARRA\",\n  \"sustitutos\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ejercicio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('pressId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ejercicio duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sentadilla {{sufijo}}\",\n  \"grupoMuscular\": \"CUADRICEPS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"BARRA\",\n  \"sustitutos\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No crea duplicados', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sustituto inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Hack {{sufijo}}\",\n  \"grupoMuscular\": \"CUADRICEPS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"MAQUINA\",\n  \"sustitutos\": [\n    {\n      \"ejercicioId\": \"no-existe\",\n      \"similitud\": 0.5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida los sustitutos', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sustitutos de la sentadilla (grafo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios/{{sentadillaId}}/sustitutos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios",
+                "{{sentadillaId}}",
+                "sustitutos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('El mas parecido va primero', () => pm.expect(pm.response.json()[0].ejercicioId === pm.collectionVariables.get('prensaId')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ejercicios de cuadriceps",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios?grupo=CUADRICEPS",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ],
+              "query": [
+                {
+                  "key": "grupo",
+                  "value": "CUADRICEPS"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Rutinas (RF03)",
+      "item": [
+        {
+          "name": "Asignar rutina semanal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/rutinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "rutinas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Fuerza base\",\n  \"semanas\": 8,\n  \"dias\": [\n    {\n      \"dia\": \"{{diaHoy}}\",\n      \"nombre\": \"Pierna y torso\",\n      \"ejercicios\": [\n        {\n          \"ejercicioId\": \"{{sentadillaId}}\",\n          \"series\": 3,\n          \"repsMin\": 8,\n          \"repsMax\": 12,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 60,\n          \"descansoSegundos\": 150\n        },\n        {\n          \"ejercicioId\": \"{{pressId}}\",\n          \"series\": 3,\n          \"repsMin\": 8,\n          \"repsMax\": 12,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 40,\n          \"descansoSegundos\": 120\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rutina asignada', () => pm.response.to.have.status(201));",
+                  "pm.test('Queda activa', () => pm.expect(pm.response.json().activa).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rango de repeticiones invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/rutinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "rutinas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mala\",\n  \"semanas\": 4,\n  \"dias\": [\n    {\n      \"dia\": \"MONDAY\",\n      \"ejercicios\": [\n        {\n          \"ejercicioId\": \"{{sentadillaId}}\",\n          \"series\": 3,\n          \"repsMin\": 12,\n          \"repsMax\": 8,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 60,\n          \"descansoSegundos\": 120\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el rango', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rutina activa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/rutinas/activa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "rutinas",
+                "activa"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial de rutinas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/rutinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "rutinas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Entrenamiento (RF04 - RF07)",
+      "item": [
+        {
+          "name": "Sesion de hoy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/sesiones/hoy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "sesiones",
+                "hoy"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('sesionId', pm.response.json().sesion.id);",
+                  "pm.test('Sugiere la carga inicial', () => pm.expect(pm.response.json().ejercicios[0].cargaSugerida === 60).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar serie 1 (60 kg x 12)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 60,\n  \"repeticiones\": 12,\n  \"rpe\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Serie registrada', () => pm.response.to.have.status(201));",
+                  "pm.test('Es la serie 1', () => pm.expect(pm.response.json().serie.numero === 1).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar serie 2 (60 kg x 12)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 60,\n  \"repeticiones\": 12,\n  \"rpe\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Serie registrada', () => pm.response.to.have.status(201));",
+                  "pm.test('Es la serie 2', () => pm.expect(pm.response.json().serie.numero === 2).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar serie 3 (60 kg x 12)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 60,\n  \"repeticiones\": 12,\n  \"rpe\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Serie registrada', () => pm.response.to.have.status(201));",
+                  "pm.test('Es la serie 3', () => pm.expect(pm.response.json().serie.numero === 3).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar sobrecarga (advertencia sin bloqueo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series/validar?ejercicioId={{sentadillaId}}&peso=80&repeticiones=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series",
+                "validar"
+              ],
+              "query": [
+                {
+                  "key": "ejercicioId",
+                  "value": "{{sentadillaId}}"
+                },
+                {
+                  "key": "peso",
+                  "value": "80"
+                },
+                {
+                  "key": "repeticiones",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Advierte pero permite', () => pm.expect(pm.response.json().conAdvertencia && pm.response.json().permitido).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar serie con sobrecarga (EC-02)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 80,\n  \"repeticiones\": 5,\n  \"rpe\": 10,\n  \"registradoPor\": \"ENTRENADOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Se registra igual', () => pm.response.to.have.status(201));",
+                  "pm.test('Trae advertencia', () => pm.expect(pm.response.json().advertencia.length > 0).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deshacer la ultima serie (EC-03)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series/deshacer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series",
+                "deshacer"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Deshace la serie de 80 kg sin borrarla', () => pm.expect(pm.response.json().serie.deshecha && pm.response.json().serie.peso === 80).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Serie con datos invalidos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": -5,\n  \"repeticiones\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el cuerpo', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Serie de ejercicio inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"no-existe\",\n  \"peso\": 50,\n  \"repeticiones\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Completar la sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/sesiones/{{sesionId}}/completar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "sesiones",
+                "{{sesionId}}",
+                "completar"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda completada', () => pm.expect(pm.response.json().estado === 'COMPLETADA').to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Completar de nuevo (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/sesiones/{{sesionId}}/completar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "sesiones",
+                "{{sesionId}}",
+                "completar"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No se cierra dos veces', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Progresion (RF08 - RF11)",
+      "item": [
+        {
+          "name": "Progresion del socio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/progresion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "progresion"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Sentadilla: SUBIR', () => pm.expect(pm.response.json().ejercicios[0].decision === 'SUBIR').to.be.true);",
+                  "pm.test('Sube 5 kg (tren inferior)', () => pm.expect(pm.response.json().ejercicios[0].cargaSugerida === 65).to.be.true);",
+                  "pm.test('Menos de 200 ms (EC-01)', () => pm.expect(pm.response.json().tiempoCalculoMs < 200).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prioridades (Max-Heap)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/prioridades?k=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "prioridades"
+              ],
+              "query": [
+                {
+                  "key": "k",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('El press, sin entrenar, va primero', () => pm.expect(pm.response.json().ejercicios[0].ejercicioId === pm.collectionVariables.get('pressId')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prioridades con k invalido (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/prioridades?k=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "prioridades"
+              ],
+              "query": [
+                {
+                  "key": "k",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida k', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar lesion de cuadriceps",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/lesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "lesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lesiones\": [\n    \"CUADRICEPS\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lesion registrada', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Progresion con lesion (sustituto)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/progresion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "progresion"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Sugiere sustituir', () => pm.expect(pm.response.json().ejercicios[0].decision === 'SUSTITUIR').to.be.true);",
+                  "pm.test('Propone la zancada, que no carga cuadriceps', () => pm.expect(pm.response.json().ejercicios[0].sustitutoId === pm.collectionVariables.get('zancadaId')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Reportes (RF12)",
+      "item": [
+        {
+          "name": "Historial de series",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "historial"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Las series deshechas no aparecen', () => pm.expect(pm.response.json().length === 3).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reporte PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/reporte/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "reporte",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es un PDF', () => pm.expect(pm.response.headers.get('Content-Type').includes('application/pdf')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Limpieza (RNF-006)",
+      "item": [
+        {
+          "name": "Eliminar socio en cascada",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Socio eliminado', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socio eliminado (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ya no existe', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "sufijo",
+      "value": ""
+    },
+    {
+      "key": "diaHoy",
+      "value": ""
+    },
+    {
+      "key": "entrenadorId",
+      "value": ""
+    },
+    {
+      "key": "socioId",
+      "value": ""
+    },
+    {
+      "key": "sentadillaId",
+      "value": ""
+    },
+    {
+      "key": "prensaId",
+      "value": ""
+    },
+    {
+      "key": "zancadaId",
+      "value": ""
+    },
+    {
+      "key": "pressId",
+      "value": ""
+    },
+    {
+      "key": "sesionId",
+      "value": ""
+    }
+  ]
+}
