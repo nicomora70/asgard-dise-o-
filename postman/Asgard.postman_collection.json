@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b9babfd5-0c79-5b78-ad64-49dcf9c0932d",
     "name": "Asgard API",
-    "description": "Pruebas de la API de Asgard: progresion de cargas en el gimnasio. Ejecutar las carpetas en orden o toda la coleccion con Run collection; los identificadores se guardan solos.",
+    "description": "Pruebas de punta a punta de la API de **Asgard**, el motor de progresion de cargas para el gimnasio.\n\n## Como usarla\n1. Elige un entorno: **Asgard Local** (`http://localhost:8080`) o **Asgard Produccion** (`https://asgard-diseno.onrender.com`).\n2. Ejecuta toda la coleccion con **Run collection**, o carpeta por carpeta **en orden** (0 a 7). Cada peticion guarda los ids que necesitan las siguientes.\n3. Render (plan gratis) se duerme tras 15 min sin uso. La primera peticion puede tardar unos 50 s, asi que conviene correr primero *Salud del servicio*.\n\n`sufijo` toma el valor de `Date.now()` en cada corrida, asi que documentos y nombres nunca se repiten. La carpeta 7 borra los socios creados.\n\n## Errores\nTodos los errores responden `{timestamp, estado, error, mensaje, ruta, detalles[]}`:\n- **400**: validacion, formato o reglas de entrada.\n- **404**: el recurso o la ruta no existe.\n- **409**: se viola una regla de negocio (duplicados, cupo, sesion cerrada, pila vacia...).\n\n## Variables de coleccion\n`sufijo`, `diaHoy` (dia de hoy en America/Bogota), `entrenadorId`, `entrenadorLlenoId`, `socioId`, `socio2Id`, `sentadillaId`, `prensaId`, `zancadaId`, `pressId`, `sesionId`, `sesion2Id`.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -23,7 +23,8 @@
                 "actuator",
                 "health"
               ]
-            }
+            },
+            "description": "Health check de Spring Actuator. Debe responder `{status: \"UP\"}`. Tambien despierta Render."
           },
           "event": [
             {
@@ -49,7 +50,8 @@
                 "{{baseUrl}}"
               ],
               "path": []
-            }
+            },
+            "description": "Raiz de la API, con enlaces a la documentacion, a OpenAPI y al health check."
           },
           "event": [
             {
@@ -62,8 +64,70 @@
               }
             }
           ]
+        },
+        {
+          "name": "Especificacion OpenAPI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v3",
+                "api-docs"
+              ]
+            },
+            "description": "Documento OpenAPI 3 generado por springdoc. Es la misma especificacion que muestra `/swagger-ui.html`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es OpenAPI con rutas', () => { const j = pm.response.json(); pm.expect(j.openapi).to.be.a('string'); pm.expect(Object.keys(j.paths)).to.include('/api/socios'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ruta inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "no-existe"
+              ]
+            },
+            "description": "Una ruta que no existe devuelve el cuerpo de error comun con el mensaje `Ruta no encontrada`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: Ruta no encontrada', () => pm.expect(pm.response.json().mensaje).to.include('Ruta no encontrada'));"
+                ]
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "description": "Disponibilidad del servicio (Actuator), enlaces de inicio, especificacion OpenAPI y ruta inexistente."
     },
     {
       "name": "1. Socios y entrenadores (RF01)",
@@ -96,7 +160,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Crea un entrenador. El pre-request genera `sufijo` y `diaHoy`. Guarda `entrenadorId`."
           },
           "event": [
             {
@@ -151,7 +216,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "`maximoSocios` debe estar entre 1 y 100. Con 0 responde 400."
           },
           "event": [
             {
@@ -161,6 +227,157 @@
                 "exec": [
                   "pm.test('Valida el cupo', () => pm.response.to.have.status(400));",
                   "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Entrenador duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores"
+              ]
+            },
+            "description": "Reusa el documento del entrenador recien creado. El documento de identidad es unico, por eso responde 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Ruiz\",\n  \"documentoIdentidad\": \"E-{{sufijo}}\",\n  \"turno\": \"TARDE\",\n  \"maximoSocios\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No crea duplicados', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: Ya existe un entrenador', () => pm.expect(pm.response.json().mensaje).to.include('Ya existe un entrenador'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar entrenador con cupo 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores"
+              ]
+            },
+            "description": "Entrenador con `maximoSocios = 1`. Se usa para probar que el cupo se respeta. Guarda `entrenadorLlenoId`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Paula Vega\",\n  \"documentoIdentidad\": \"E1-{{sufijo}}\",\n  \"turno\": \"MANANA\",\n  \"maximoSocios\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Entrenador creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('entrenadorLlenoId', pm.response.json().id);",
+                  "pm.test('Tiene cupo', () => pm.expect(pm.response.json().tieneCupo).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar entrenadores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores"
+              ]
+            },
+            "description": "Lista todos los entrenadores con `sociosAsignados` y `tieneCupo`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye al entrenador creado', () => pm.expect(pm.response.json().map(e => e.id)).to.include(pm.collectionVariables.get('entrenadorId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar entrenador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/entrenadores/{{entrenadorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entrenadores",
+                "{{entrenadorId}}"
+              ]
+            },
+            "description": "Detalle de un entrenador por id. Responde 404 si no existe."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es el entrenador pedido', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('entrenadorId')));"
                 ]
               }
             }
@@ -194,7 +411,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Crea un socio con datos fisicos, asignado al entrenador. La API calcula edad e IMC. Guarda `socioId`."
           },
           "event": [
             {
@@ -238,7 +456,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Mismo documento que el socio anterior. Responde 409."
           },
           "event": [
             {
@@ -281,7 +500,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Faltan campos obligatorios. Responde 400 y `detalles` lista cada campo invalido."
           },
           "event": [
             {
@@ -291,6 +511,237 @@
                 "exec": [
                   "pm.test('Valida el cuerpo', () => pm.response.to.have.status(400));",
                   "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Socio con enum invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "description": "`nivel` solo acepta PRINCIPIANTE, INTERMEDIO o AVANZADO. Un valor desconocido responde 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Ruiz\",\n  \"documentoIdentidad\": \"SX-{{sufijo}}\",\n  \"nivel\": \"EXPERTO\",\n  \"objetivo\": \"FUERZA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el enum', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: formato esperado', () => pm.expect(pm.response.json().mensaje).to.include('formato esperado'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "JSON mal formado (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "description": "Un cuerpo que no es JSON valido responde 400 con el cuerpo de error comun.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Ruiz\",\n  \"documentoIdentidad\": \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el JSON', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: formato esperado', () => pm.expect(pm.response.json().mensaje).to.include('formato esperado'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar socio 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "description": "Segundo socio, sin entrenador. Sirve para las pruebas de cupo, sesion omitida y deshacer vacio. Guarda `socio2Id`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Andres Pardo\",\n  \"documentoIdentidad\": \"S2-{{sufijo}}\",\n  \"nivel\": \"PRINCIPIANTE\",\n  \"objetivo\": \"FUERZA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Socio creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('socio2Id', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar socios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios"
+              ]
+            },
+            "description": "Lista todos los socios registrados."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye a los dos socios', () => { const ids = pm.response.json().map(s => s.id); pm.expect(ids).to.include(pm.collectionVariables.get('socioId')); pm.expect(ids).to.include(pm.collectionVariables.get('socio2Id')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asignar entrenador al socio 2",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/entrenador/{{entrenadorLlenoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "entrenador",
+                "{{entrenadorLlenoId}}"
+              ]
+            },
+            "description": "Asigna el socio 2 al entrenador con cupo 1. Con esto el entrenador queda lleno."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda asignado', () => pm.expect(pm.response.json().entrenadorId).to.eql(pm.collectionVariables.get('entrenadorLlenoId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Entrenador sin cupo (409)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/entrenador/{{entrenadorLlenoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "entrenador",
+                "{{entrenadorLlenoId}}"
+              ]
+            },
+            "description": "El entrenador ya tiene 1 de 1 socios. Asignarle otro responde 409 y el socio conserva su entrenador."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Respeta el cupo', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: cupo completo', () => pm.expect(pm.response.json().mensaje).to.include('cupo completo'));"
                 ]
               }
             }
@@ -311,7 +762,8 @@
                 "socios",
                 "{{socioId}}"
               ]
-            }
+            },
+            "description": "Detalle del socio por id."
           },
           "event": [
             {
@@ -340,7 +792,8 @@
                 "socios",
                 "no-existe"
               ]
-            }
+            },
+            "description": "Un id que no existe responde 404."
           },
           "event": [
             {
@@ -371,7 +824,8 @@
                 "{{entrenadorId}}",
                 "socios"
               ]
-            }
+            },
+            "description": "Socios asignados a un entrenador."
           },
           "event": [
             {
@@ -386,7 +840,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "RF01: registro y consulta de entrenadores y socios, cupo maximo por entrenador, duplicados y validaciones."
     },
     {
       "name": "2. Catalogo de ejercicios (RF02)",
@@ -419,7 +874,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Crea el ejercicio base de cuadriceps. Guarda `sentadillaId`."
           },
           "event": [
             {
@@ -462,7 +918,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Crea la prensa como sustituto de la sentadilla con similitud 0.8. Guarda `prensaId`."
           },
           "event": [
             {
@@ -505,7 +962,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Crea la zancada como sustituto de la sentadilla con similitud 0.6. Guarda `zancadaId`."
           },
           "event": [
             {
@@ -548,7 +1006,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Ejercicio de pecho para la rutina. Guarda `pressId`."
           },
           "event": [
             {
@@ -591,7 +1050,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "El nombre del ejercicio es unico, sin distinguir mayusculas. Responde 409."
           },
           "event": [
             {
@@ -634,7 +1094,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Un sustituto con un id desconocido responde 404."
           },
           "event": [
             {
@@ -644,6 +1105,127 @@
                 "exec": [
                   "pm.test('Valida los sustitutos', () => pm.response.to.have.status(404));",
                   "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sustituto repetido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "description": "El mismo ejercicio aparece dos veces en `sustitutos`, por eso responde 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Bulgara {{sufijo}}\",\n  \"grupoMuscular\": \"CUADRICEPS\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"MANCUERNA\",\n  \"sustitutos\": [\n    {\n      \"ejercicioId\": \"{{sentadillaId}}\",\n      \"similitud\": 0.5\n    },\n    {\n      \"ejercicioId\": \"{{sentadillaId}}\",\n      \"similitud\": 0.7\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida sustitutos repetidos', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: repetido', () => pm.expect(pm.response.json().mensaje).to.include('repetido'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Creador inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "description": "`creadoPor` debe ser el id de un entrenador existente. Si no existe, responde 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Peso muerto {{sufijo}}\",\n  \"grupoMuscular\": \"ISQUIOTIBIALES\",\n  \"tipo\": \"COMPUESTO\",\n  \"equipamiento\": \"BARRA\",\n  \"creadoPor\": \"no-existe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el creador', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: No existe el entrenador', () => pm.expect(pm.response.json().mensaje).to.include('No existe el entrenador'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar ejercicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios/{{sentadillaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios",
+                "{{sentadillaId}}"
+              ]
+            },
+            "description": "Detalle de un ejercicio. La sentadilla tiene sustitutos porque prensa y zancada la referenciaron (grafo bidireccional)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene sustitutos (grafo no dirigido)', () => pm.expect(pm.response.json().sustitutos.length).to.be.above(0));"
                 ]
               }
             }
@@ -665,7 +1247,8 @@
                 "{{sentadillaId}}",
                 "sustitutos"
               ]
-            }
+            },
+            "description": "Vecinos de la sentadilla en el grafo de sustitutos, del mas similar al menos similar."
           },
           "event": [
             {
@@ -700,7 +1283,8 @@
                   "value": "CUADRICEPS"
                 }
               ]
-            }
+            },
+            "description": "Filtra el catalogo con `?grupo=CUADRICEPS`."
           },
           "event": [
             {
@@ -713,8 +1297,39 @@
               }
             }
           ]
+        },
+        {
+          "name": "Listar ejercicios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ejercicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ejercicios"
+              ]
+            },
+            "description": "Catalogo completo, sin filtro de grupo muscular."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye los ejercicios creados', () => { const ids = pm.response.json().map(e => e.id); pm.expect(ids).to.include(pm.collectionVariables.get('sentadillaId')); pm.expect(ids).to.include(pm.collectionVariables.get('pressId')); });"
+                ]
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "description": "RF02: catalogo de ejercicios y grafo no dirigido de sustitutos con su similitud."
     },
     {
       "name": "3. Rutinas (RF03)",
@@ -749,7 +1364,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Asigna una rutina con el dia de hoy (`diaHoy`). La rutina anterior queda inactiva."
           },
           "event": [
             {
@@ -794,7 +1410,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "`repsMin` mayor que `repsMax` responde 400."
           },
           "event": [
             {
@@ -803,6 +1420,52 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Valida el rango', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dia repetido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/rutinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "rutinas"
+              ]
+            },
+            "description": "Una rutina no puede tener el mismo dia dos veces. Responde 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Repetida\",\n  \"semanas\": 4,\n  \"dias\": [\n    {\n      \"dia\": \"MONDAY\",\n      \"ejercicios\": [\n        {\n          \"ejercicioId\": \"{{sentadillaId}}\",\n          \"series\": 3,\n          \"repsMin\": 8,\n          \"repsMax\": 12,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 60,\n          \"descansoSegundos\": 120\n        }\n      ]\n    },\n    {\n      \"dia\": \"MONDAY\",\n      \"ejercicios\": [\n        {\n          \"ejercicioId\": \"{{sentadillaId}}\",\n          \"series\": 3,\n          \"repsMin\": 8,\n          \"repsMax\": 12,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 60,\n          \"descansoSegundos\": 120\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida dias repetidos', () => pm.response.to.have.status(400));",
                   "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
                 ]
               }
@@ -826,7 +1489,8 @@
                 "rutinas",
                 "activa"
               ]
-            }
+            },
+            "description": "Rutina vigente del socio."
           },
           "event": [
             {
@@ -856,7 +1520,8 @@
                 "{{socioId}}",
                 "rutinas"
               ]
-            }
+            },
+            "description": "Todas las rutinas del socio, de la mas reciente a la mas antigua."
           },
           "event": [
             {
@@ -869,8 +1534,88 @@
               }
             }
           ]
+        },
+        {
+          "name": "Socio 2 sin rutina activa (409)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/rutinas/activa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "rutinas",
+                "activa"
+              ]
+            },
+            "description": "El socio 2 todavia no tiene rutina, por eso responde 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sin rutina activa', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asignar rutina al socio 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/rutinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "rutinas"
+              ]
+            },
+            "description": "Rutina con el dia de hoy para el socio 2. Sin `entrenadorId`, la rutina toma el entrenador del socio.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Inicio\",\n  \"semanas\": 4,\n  \"dias\": [\n    {\n      \"dia\": \"{{diaHoy}}\",\n      \"nombre\": \"Pierna\",\n      \"ejercicios\": [\n        {\n          \"ejercicioId\": \"{{sentadillaId}}\",\n          \"series\": 3,\n          \"repsMin\": 8,\n          \"repsMax\": 12,\n          \"rpeObjetivo\": 8,\n          \"cargaInicial\": 60,\n          \"descansoSegundos\": 120\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rutina asignada', () => pm.response.to.have.status(201));",
+                  "pm.test('Hereda el entrenador del socio', () => pm.expect(pm.response.json().entrenadorId).to.eql(pm.collectionVariables.get('entrenadorLlenoId')));"
+                ]
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "description": "RF03: rutina semanal (una sola activa por socio) e historial de rutinas."
     },
     {
       "name": "4. Entrenamiento (RF04 - RF07)",
@@ -892,7 +1637,8 @@
                 "sesiones",
                 "hoy"
               ]
-            }
+            },
+            "description": "Sesion del dia con la carga sugerida por ejercicio. Guarda `sesionId`."
           },
           "event": [
             {
@@ -938,7 +1684,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Registra la serie 1 de sentadilla. Se apila para poder deshacerla."
           },
           "event": [
             {
@@ -983,7 +1730,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Segunda serie de sentadilla."
           },
           "event": [
             {
@@ -1028,7 +1776,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Tercera serie de sentadilla."
           },
           "event": [
             {
@@ -1074,7 +1823,8 @@
                   "value": "5"
                 }
               ]
-            }
+            },
+            "description": "Previsualiza una serie de 80 kg. Avisa de la sobrecarga pero `permitido` siempre es true."
           },
           "event": [
             {
@@ -1084,6 +1834,50 @@
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));",
                   "pm.test('Advierte pero permite', () => pm.expect(pm.response.json().conAdvertencia && pm.response.json().permitido).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar sin peso (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series/validar?ejercicioId={{sentadillaId}}&repeticiones=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series",
+                "validar"
+              ],
+              "query": [
+                {
+                  "key": "ejercicioId",
+                  "value": "{{sentadillaId}}"
+                },
+                {
+                  "key": "repeticiones",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "`peso` es obligatorio en `/validar`. Si falta, responde 400 y el mensaje nombra el parametro."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Exige los parametros', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: peso', () => pm.expect(pm.response.json().mensaje).to.include('peso'));"
                 ]
               }
             }
@@ -1119,7 +1913,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Registra la serie con sobrecarga: responde 201 e incluye `advertencia`."
           },
           "event": [
             {
@@ -1151,7 +1946,8 @@
                 "series",
                 "deshacer"
               ]
-            }
+            },
+            "description": "Desapila la ultima serie y la marca `deshecha` sin borrarla."
           },
           "event": [
             {
@@ -1196,7 +1992,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Peso negativo y 0 repeticiones responden 400."
           },
           "event": [
             {
@@ -1241,7 +2038,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Un `ejercicioId` desconocido responde 404."
           },
           "event": [
             {
@@ -1251,6 +2049,53 @@
                 "exec": [
                   "pm.test('Responde 404', () => pm.response.to.have.status(404));",
                   "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Serie con fecha futura (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "description": "`fechaHora` no puede estar en el futuro. Responde 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 60,\n  \"repeticiones\": 10,\n  \"fechaHora\": \"2099-01-01T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el futuro', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: futuro', () => pm.expect(pm.response.json().mensaje).to.include('futuro'));"
                 ]
               }
             }
@@ -1274,7 +2119,8 @@
                 "{{sesionId}}",
                 "completar"
               ]
-            }
+            },
+            "description": "Cierra la sesion de hoy como COMPLETADA."
           },
           "event": [
             {
@@ -1307,7 +2153,8 @@
                 "{{sesionId}}",
                 "completar"
               ]
-            }
+            },
+            "description": "Una sesion cerrada no se puede cerrar otra vez. Responde 409."
           },
           "event": [
             {
@@ -1321,8 +2168,259 @@
               }
             }
           ]
+        },
+        {
+          "name": "Serie en sesion cerrada (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/series",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "series"
+              ]
+            },
+            "description": "La sesion ya esta COMPLETADA y no acepta mas series. Responde 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ejercicioId\": \"{{sentadillaId}}\",\n  \"peso\": 60,\n  \"repeticiones\": 10,\n  \"sesionId\": \"{{sesionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No agrega a sesiones cerradas', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: cerrada', () => pm.expect(pm.response.json().mensaje).to.include('cerrada'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sesion inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/sesiones/no-existe/completar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "sesiones",
+                "no-existe",
+                "completar"
+              ]
+            },
+            "description": "Un id de sesion que no existe, o que es de otro socio, responde 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: No existe la sesion', () => pm.expect(pm.response.json().mensaje).to.include('No existe la sesion'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial de sesiones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "sesiones"
+              ]
+            },
+            "description": "Sesiones del socio, de la mas reciente a la mas antigua."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('La sesion quedo completada', () => pm.expect(pm.response.json().find(s => s.id === pm.collectionVariables.get('sesionId')).estado).to.eql('COMPLETADA'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sesion de hoy del socio 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/hoy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "sesiones",
+                "hoy"
+              ]
+            },
+            "description": "Crea la sesion de hoy del socio 2 y guarda `sesion2Id`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('sesion2Id', pm.response.json().sesion.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Omitir sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/{{sesion2Id}}/omitir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "sesiones",
+                "{{sesion2Id}}",
+                "omitir"
+              ]
+            },
+            "description": "El socio no hizo la sesion. Queda OMITIDA y sale de la cola de pendientes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Queda omitida', () => pm.expect(pm.response.json().estado).to.eql('OMITIDA'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Completar sesion omitida (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/sesiones/{{sesion2Id}}/completar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "sesiones",
+                "{{sesion2Id}}",
+                "completar"
+              ]
+            },
+            "description": "Una sesion omitida ya esta cerrada y no se puede completar. Responde 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No se reabre', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: omitida', () => pm.expect(pm.response.json().mensaje).to.include('omitida'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deshacer sin series (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}/series/deshacer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}",
+                "series",
+                "deshacer"
+              ]
+            },
+            "description": "El socio 2 no registro series, asi que la pila de deshacer esta vacia. Responde 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Pila vacia', () => pm.response.to.have.status(409));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: No hay series para deshacer', () => pm.expect(pm.response.json().mensaje).to.include('No hay series para deshacer'));"
+                ]
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "description": "RF04 a RF07: sesion del dia, cola FIFO de pendientes, registro de series con advertencia de sobrecarga, pila para deshacer y cierre de sesiones."
     },
     {
       "name": "5. Progresion (RF08 - RF11)",
@@ -1343,7 +2441,8 @@
                 "{{socioId}}",
                 "progresion"
               ]
-            }
+            },
+            "description": "Estado de cada ejercicio: semaforo, decision (SUBIR, MANTENER...) y carga sugerida."
           },
           "event": [
             {
@@ -1382,7 +2481,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Los k ejercicios con mayor puntaje de prioridad (`k=1`)."
           },
           "event": [
             {
@@ -1419,7 +2519,8 @@
                   "value": "0"
                 }
               ]
-            }
+            },
+            "description": "`k` debe estar entre 1 y 50. Con 0 responde 400."
           },
           "event": [
             {
@@ -1463,7 +2564,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Reemplaza las lesiones del socio con `[CUADRICEPS]`."
           },
           "event": [
             {
@@ -1493,7 +2595,8 @@
                 "{{socioId}}",
                 "progresion"
               ]
-            }
+            },
+            "description": "Con la lesion, el motor recomienda un sustituto para la sentadilla."
           },
           "event": [
             {
@@ -1509,7 +2612,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "RF08 a RF11: motor de progresion (semaforo y decision de carga), prioridades con Max-Heap, y sustitutos ante una lesion."
     },
     {
       "name": "6. Reportes (RF12)",
@@ -1530,7 +2634,8 @@
                 "{{socioId}}",
                 "historial"
               ]
-            }
+            },
+            "description": "Series no deshechas del socio. Acepta `ejercicioId`, `desde` y `hasta` (ISO-8601)."
           },
           "event": [
             {
@@ -1540,6 +2645,49 @@
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));",
                   "pm.test('Las series deshechas no aparecen', () => pm.expect(pm.response.json().length === 3).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial con rango invalido (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socioId}}/historial?desde=2026-12-31T00:00:00Z&hasta=2026-01-01T00:00:00Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socioId}}",
+                "historial"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-12-31T00:00:00Z"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-01-01T00:00:00Z"
+                }
+              ]
+            },
+            "description": "`desde` es posterior a `hasta`. Responde 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Valida el rango', () => pm.response.to.have.status(400));",
+                  "pm.test('El error trae un mensaje en espanol', () => pm.expect(pm.response.json().mensaje).to.be.a('string').and.not.empty);",
+                  "pm.test('Mensaje: desde', () => pm.expect(pm.response.json().mensaje).to.include('desde'));"
                 ]
               }
             }
@@ -1562,7 +2710,8 @@
                 "reporte",
                 "pdf"
               ]
-            }
+            },
+            "description": "Descarga el reporte de progreso en `application/pdf`."
           },
           "event": [
             {
@@ -1577,7 +2726,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "RF12: historial de series filtrable y reporte de progreso en PDF."
     },
     {
       "name": "7. Limpieza (RNF-006)",
@@ -1597,7 +2747,8 @@
                 "socios",
                 "{{socioId}}"
               ]
-            }
+            },
+            "description": "Borra el socio junto con su rutina, sesiones y series. Responde 204."
           },
           "event": [
             {
@@ -1626,7 +2777,8 @@
                 "socios",
                 "{{socioId}}"
               ]
-            }
+            },
+            "description": "El socio borrado ya no existe."
           },
           "event": [
             {
@@ -1639,8 +2791,39 @@
               }
             }
           ]
+        },
+        {
+          "name": "Eliminar socio 2",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/socios/{{socio2Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "socios",
+                "{{socio2Id}}"
+              ]
+            },
+            "description": "Borra el socio 2 junto con su rutina, sesiones y series."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "description": "RNF-006: borrado en cascada de los datos de prueba."
     }
   ],
   "variable": [
@@ -1678,6 +2861,18 @@
     },
     {
       "key": "sesionId",
+      "value": ""
+    },
+    {
+      "key": "entrenadorLlenoId",
+      "value": ""
+    },
+    {
+      "key": "socio2Id",
+      "value": ""
+    },
+    {
+      "key": "sesion2Id",
       "value": ""
     }
   ]
