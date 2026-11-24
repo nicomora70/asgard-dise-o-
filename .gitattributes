@@ -1,0 +1,5 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+# El Dockerfile es configuracion de despliegue, no codigo: no se cuenta en los lenguajes del repositorio
+Dockerfile linguist-detectable=false
